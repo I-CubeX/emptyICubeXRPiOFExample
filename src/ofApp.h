@@ -3,6 +3,13 @@
 #include "ofMain.h"
 #include "wiringPi.h"
 #include "wiringPiSPI.h"
+#include "wiringPiI2C.h"
+
+struct Orient3dData {
+	int bearing;
+	int pitch;
+	int roll;
+};
 
 class ofApp : public ofBaseApp{
 	public:
@@ -25,4 +32,7 @@ class ofApp : public ofBaseApp{
 	private:		
 		bool setupSensors();
 		int readADC(int adcnum);
+		bool setupOrient3d();
+                Orient3dData readOrient3d();
+		int myOrient3d;
 };

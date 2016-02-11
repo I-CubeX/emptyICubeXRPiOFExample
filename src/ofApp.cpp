@@ -11,6 +11,13 @@ void ofApp::setup(){
       }
       printf("\n");
    }
+   if (setupOrient3d()) {
+      for (int i=0; i<100; i++) {
+         Orient3dData data = readOrient3d();
+         printf("Orient 3d: bearing %4i    pitch %4i    roll %4i\n",data.bearing, data.pitch, data.roll);
+      }   
+   }
+
    printf("\n\ntest complete. exiting app...\n");
    ofExit();
 }
@@ -88,6 +95,19 @@ bool ofApp::setupSensors() {
 
 }
 
+bool ofApp::setupOrient3d() {
+    pullUpDnControl(8, PUD_UP);
+    pullUpDnControl(9, PUD_UP);
+    if ( (myOrient3d = wiringPiI2CSetup(0x60)) == -1) {
+        printf("error initializing i2c for orient3d!\n");
+        return false;
+    }
+    else {
+        printf("orient3d: i2c init successful\n");
+        return true;
+    }
+}
+
 int ofApp::readADC(int adcnum)
 {
     uint8_t buff[3];
@@ -100,4 +120,12 @@ int ofApp::readADC(int adcnum)
     wiringPiSPIDataRW(0, buff, 3);
     adc = ((buff[1]&3) << 8) + buff[2];
     return adc;
+}
+
+Orient3dData ofApp::readOrient3d() {
+    Orient3dData res;
+    res.bearing = (int)wiringPiI2CReadReg8(myOrient3d, 0x01);
+    res.pitch = (int) wiringPiI2CReadReg8(myOrient3d, 0x04);
+    res.roll = (int) wiringPiI2CReadReg8(myOrient3d, 0x05);
+    return res;
 }
